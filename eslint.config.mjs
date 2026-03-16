@@ -19,5 +19,6 @@ export default withNuxt({
     // 程式碼品質
     'no-unused-vars': 'off', // 關閉原生檢查，改用 TS 檢查
     'no-console': 'off', // 開發期間允許 console.log
+    'no-trailing-spaces': 'error' // 或者是 'warn'
   },
 })
