@@ -11,15 +11,20 @@ export const useListUserReposAPI = (username: string) => {
 
     loading.value = true
     try {
-      const data = await $fetch<ListUserReposResponse>(`https://api.github.com/users/${username}/repos`, {
+      const response = await $fetch.raw<ListUserReposResponse>(`https://api.github.com/users/${username}/repos`, {
         query: {
           per_page: 10,
           page: page.value,
           sort: 'updated'
         }
       })
+      console.log('GitHub API Response:', response)
 
-      if (data.length < 10) hasMore.value = false
+      const data = response._data ?? []
+      const linkHeader = response.headers.get('Link') ?? ''
+
+      // 有 rel="next" 才代表還有下一頁
+      hasMore.value = linkHeader.includes('rel="next"')
 
       repos.value.push(...data)
       page.value++
