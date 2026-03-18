@@ -35,7 +35,7 @@
       </div>
 
       <!-- 搜尋結果提示區 -->
-      <div class="mt-3 min-h-[1.5rem]">
+      <div v-if="confirmedUser" class="mt-3 min-h-[1.5rem]">
         <!-- 成功：顯示目標使用者名稱 -->
         <p v-if="confirmedUser && !error" class="text-sm text-slate-300">
           正在顯示
