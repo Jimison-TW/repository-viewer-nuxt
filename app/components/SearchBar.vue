@@ -36,7 +36,7 @@
       </div>
 
       <!-- 搜尋結果提示區 -->
-      <div v-if="confirmedUser" class="mt-3 min-h-[1.5rem]" role="status" aria-live="polite">
+      <div v-if="confirmedUser || error" class="mt-3 min-h-[1.5rem]" role="status" aria-live="polite">
         <!-- 成功：顯示目標使用者名稱 -->
         <p v-if="confirmedUser && !error" class="text-sm text-slate-300">
           正在顯示
