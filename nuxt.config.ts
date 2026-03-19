@@ -27,5 +27,13 @@ export default defineNuxtConfig({
       crawlLinks: true,
       routes: ['/']
     }
+  },
+  typescript: {
+    typeCheck: false, // 如果您有安裝 vue-tsc，可以設為 true
+    tsConfig: {
+      compilerOptions: {
+        types: ['node'] // 確保這行存在，解決 process 報錯
+      }
+    }
   }
 })
