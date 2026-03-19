@@ -97,8 +97,9 @@ async function onSearch() {
     const status = (err as { response?: { status?: number } })?.response?.status
     if (status === 404) {
       error.value = `找不到使用者「${username}」，請確認名稱是否正確。`
-    }
-    else {
+    } else if (status === 403) {
+      error.value = 'GitHub API 請求已達每小時上限，請稍後再試。'
+    } else {
       error.value = '搜尋失敗，請稍後再試。'
     }
     emit('clear')
