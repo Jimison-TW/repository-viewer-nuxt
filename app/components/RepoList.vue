@@ -44,12 +44,14 @@ const { repos, loading, hasMore, fetchRepos } = useListUserReposAPI(props.userna
 
 const sentinelRef = ref<HTMLElement | null>(null)
 
+let observer: IntersectionObserver | null = null
+
 onMounted(async () => {
   // 初始載入第一批資料
   await fetchRepos()
 
   // 使用 IntersectionObserver 實作無限滾動
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       // 同步判斷，不用 async，改由 fetchRepos 內部的 loading guard 保護
       if (entries[0]?.isIntersecting) {
@@ -62,7 +64,7 @@ onMounted(async () => {
   if (sentinelRef.value) {
     observer.observe(sentinelRef.value)
   }
-
-  onUnmounted(() => observer.disconnect())
 })
+
+onUnmounted(() => observer?.disconnect())
 </script>
