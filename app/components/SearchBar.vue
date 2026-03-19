@@ -21,6 +21,7 @@
           type="button"
           :disabled="loading || !inputValue.trim()"
           class="shrink-0 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium px-5 py-3 rounded-lg transition-colors"
+          :aria-label="loading ? '搜尋中' : '搜尋'"
           @click="onSearch"
         >
           <span v-if="loading" class="flex items-center gap-2">
@@ -35,7 +36,7 @@
       </div>
 
       <!-- 搜尋結果提示區 -->
-      <div v-if="confirmedUser" class="mt-3 min-h-[1.5rem]">
+      <div v-if="confirmedUser" class="mt-3 min-h-[1.5rem]" role="status" aria-live="polite">
         <!-- 成功：顯示目標使用者名稱 -->
         <p v-if="confirmedUser && !error" class="text-sm text-slate-300">
           正在顯示
