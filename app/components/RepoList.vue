@@ -29,6 +29,12 @@
           已顯示全部 {{ repos.length }} 個儲存庫
         </p>
       </template>
+      <template v-else-if="fetchError">
+        <div class="flex flex-col items-center gap-2 text-red-400 text-sm">
+          <p>{{ fetchError }}</p>
+          <button class="text-blue-400 underline" @click="fetchRepos">重試</button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -40,7 +46,7 @@ const props = withDefaults(defineProps<{
   username: 'google',
 })
 
-const { repos, loading, hasMore, fetchRepos } = useListUserReposAPI(props.username)
+const { repos, loading, hasMore, fetchError, fetchRepos } = useListUserReposAPI(props.username)
 
 const sentinelRef = ref<HTMLElement | null>(null)
 
