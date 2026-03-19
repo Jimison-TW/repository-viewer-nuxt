@@ -18,7 +18,7 @@ export default withNuxt({
 
     // 程式碼品質
     'no-unused-vars': 'off', // 關閉原生檢查，改用 TS 檢查
-    'no-console': 'off', // 開發期間允許 console.log
+    'no-console': ['warn', { allow: ['error', 'warn'] }], // 改為只允許 error/warn，並在上線前移除 debug 用的 console.log
     'no-trailing-spaces': 'error' // 或者是 'warn'
   },
 })
