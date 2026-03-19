@@ -20,7 +20,6 @@ export const useListUserReposAPI = (username: string) => {
           sort: 'updated'
         }
       })
-      console.log('GitHub API Response:', response)
 
       const data = response._data ?? []
       const linkHeader = response.headers.get('Link') ?? ''
