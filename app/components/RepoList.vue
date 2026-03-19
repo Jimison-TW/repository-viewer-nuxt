@@ -1,11 +1,12 @@
 <template>
   <div class="max-w-7xl mx-auto px-6 py-8">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <RepoCard
-        v-for="repo in repos"
-        :key="repo.id"
-        :repo="repo"
-      />
+      <template v-if="loading && repos.length === 0">
+        <RepoCardSkeleton v-for="n in 9" :key="n" />
+      </template>
+      <template v-else>
+        <RepoCard v-for="repo in repos" :key="repo.id" :repo="repo" />
+      </template>
     </div>
 
     <!-- 無限滾動哨兵元素 -->
