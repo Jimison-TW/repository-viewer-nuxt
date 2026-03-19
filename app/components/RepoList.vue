@@ -50,9 +50,10 @@ onMounted(async () => {
 
   // 使用 IntersectionObserver 實作無限滾動
   const observer = new IntersectionObserver(
-    async (entries) => {
-      if (entries[0]?.isIntersecting && !loading.value && hasMore.value) {
-        await fetchRepos()
+    (entries) => {
+      // 同步判斷，不用 async，改由 fetchRepos 內部的 loading guard 保護
+      if (entries[0]?.isIntersecting) {
+        fetchRepos() // fetchRepos 開頭已有 if (loading.value) return 防護
       }
     },
     { threshold: 0.1 },
