@@ -1,11 +1,12 @@
 <template>
   <div class="max-w-7xl mx-auto px-6 py-8">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <RepoCard
-        v-for="repo in repos"
-        :key="repo.id"
-        :repo="repo"
-      />
+      <template v-if="loading && repos.length === 0">
+        <RepoCardSkeleton v-for="n in 9" :key="n" />
+      </template>
+      <template v-else>
+        <RepoCard v-for="repo in repos" :key="repo.id" :repo="repo" />
+      </template>
     </div>
 
     <!-- 無限滾動哨兵元素 -->
@@ -29,6 +30,12 @@
           已顯示全部 {{ repos.length }} 個儲存庫
         </p>
       </template>
+      <template v-else-if="fetchError">
+        <div class="flex flex-col items-center gap-2 text-red-400 text-sm">
+          <p>{{ fetchError }}</p>
+          <button class="text-blue-400 underline" @click="fetchRepos">重試</button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -40,19 +47,22 @@ const props = withDefaults(defineProps<{
   username: 'google',
 })
 
-const { repos, loading, hasMore, fetchRepos } = useListUserReposAPI(props.username)
+const { repos, loading, hasMore, fetchError, fetchRepos } = useListUserReposAPI(props.username)
 
 const sentinelRef = ref<HTMLElement | null>(null)
+
+let observer: IntersectionObserver | null = null
 
 onMounted(async () => {
   // 初始載入第一批資料
   await fetchRepos()
 
   // 使用 IntersectionObserver 實作無限滾動
-  const observer = new IntersectionObserver(
-    async (entries) => {
-      if (entries[0]?.isIntersecting && !loading.value && hasMore.value) {
-        await fetchRepos()
+  observer = new IntersectionObserver(
+    (entries) => {
+      // 同步判斷，不用 async，改由 fetchRepos 內部的 loading guard 保護
+      if (entries[0]?.isIntersecting) {
+        fetchRepos() // fetchRepos 開頭已有 if (loading.value) return 防護
       }
     },
     { threshold: 0.1 },
@@ -61,7 +71,7 @@ onMounted(async () => {
   if (sentinelRef.value) {
     observer.observe(sentinelRef.value)
   }
-
-  onUnmounted(() => observer.disconnect())
 })
+
+onUnmounted(() => observer?.disconnect())
 </script>

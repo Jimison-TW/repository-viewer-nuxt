@@ -12,7 +12,7 @@
           <input
             v-model="inputValue"
             type="text"
-            placeholder="輸入 GitHub 使用者名稱..."
+            :placeholder="placeholder"
             class="w-full bg-slate-800 border border-slate-600 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
             @keydown.enter="onSearch"
           >
@@ -21,6 +21,7 @@
           type="button"
           :disabled="loading || !inputValue.trim()"
           class="shrink-0 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium px-5 py-3 rounded-lg transition-colors"
+          :aria-label="loading ? '搜尋中' : '搜尋'"
           @click="onSearch"
         >
           <span v-if="loading" class="flex items-center gap-2">
@@ -35,7 +36,7 @@
       </div>
 
       <!-- 搜尋結果提示區 -->
-      <div v-if="confirmedUser" class="mt-3 min-h-[1.5rem]">
+      <div v-if="confirmedUser" class="mt-3 min-h-[1.5rem]" role="status" aria-live="polite">
         <!-- 成功：顯示目標使用者名稱 -->
         <p v-if="confirmedUser && !error" class="text-sm text-slate-300">
           正在顯示
@@ -97,8 +98,9 @@ async function onSearch() {
     const status = (err as { response?: { status?: number } })?.response?.status
     if (status === 404) {
       error.value = `找不到使用者「${username}」，請確認名稱是否正確。`
-    }
-    else {
+    } else if (status === 403) {
+      error.value = 'GitHub API 請求已達每小時上限，請稍後再試。'
+    } else {
       error.value = '搜尋失敗，請稍後再試。'
     }
     emit('clear')

@@ -3,6 +3,7 @@
     :href="repo.html_url"
     target="_blank"
     rel="noopener noreferrer"
+    :aria-label="`前往 ${repo.full_name} 的 GitHub 頁面`"
     class="block bg-slate-800 border border-slate-700 rounded-xl p-5 hover:bg-slate-700 hover:border-slate-500 transition-colors duration-200 cursor-pointer"
   >
     <div class="flex items-start justify-between gap-2 mb-2">
@@ -51,9 +52,7 @@
 <script setup lang="ts">
 import type { ListUserReposItem } from '~/types/github'
 
-withDefaults(defineProps<{
-  repo: ListUserReposItem
-}>(), {})
+const { repo } = defineProps<{ repo: ListUserReposItem }>()
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('zh-TW', {

@@ -224,3 +224,7 @@ export interface CodeOfConduct {
   html_url: string | null;
 
 }
+
+export interface GitHubAPIError {
+  response?: { status?: number }
+}
