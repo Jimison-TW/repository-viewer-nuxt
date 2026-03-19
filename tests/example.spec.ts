@@ -1,18 +1,17 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
+import { setupMockAPI } from './fixtures/mockGitHubAPI'
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+test('搜尋已知存在的使用者，能看到 repo 列表', async ({ page }) => {
+  await setupMockAPI(page)
+  await page.goto('/')
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
+  await page.getByPlaceholder('輸入 GitHub 使用者名稱...').fill('mockuser')
+  await page.getByRole('button', { name: '搜尋' }).click()
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+  // 顯示搜尋目標名稱
+  await expect(page.getByText('mockuser').first()).toBeVisible()
 
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
-});
+  // 至少出現第一頁 10 張 RepoCard
+  const cards = page.locator('a[href*="github.com/mockuser"]')
+  await expect(cards).toHaveCount(10, { timeout: 10000 })
+})
