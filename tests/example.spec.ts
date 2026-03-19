@@ -70,3 +70,43 @@ test('最後一頁結束後，顯示「已顯示全部 N 個儲存庫」', async
   await expect(page.getByText('已顯示全部')).toBeVisible({ timeout: 12000 })
   await expect(page.getByText('30 個儲存庫')).toBeVisible()
 })
+
+test('清空搜尋框，回到初始畫面，不殘留舊資料', async ({ page }) => {
+  await setupMockAPI(page)
+  await page.goto('/')
+
+  const input = page.getByPlaceholder('輸入 GitHub 使用者名稱...')
+  await input.fill('mockuser')
+  await page.getByRole('button', { name: '搜尋' }).click()
+
+  // 等待 repo 出現
+  await expect(page.locator('a[href*="github.com/mockuser"]').first()).toBeVisible({ timeout: 10000 })
+
+  // 清空輸入框（triple-click 全選後 Backspace）
+  await input.tripleClick()
+  await input.press('Backspace')
+
+  // 回到初始提示畫面
+  await expect(page.getByText('輸入 GitHub 使用者名稱以搜尋儲存庫')).toBeVisible()
+
+  // repo 列表消失
+  await expect(page.locator('a[href*="github.com/mockuser"]')).toHaveCount(0)
+})
+
+test('低速網路（delayed API）下，loading 狀態正確顯示', async ({ page }) => {
+  // 模擬 API 延遲 1.5 秒，讓 loading 狀態有時間被看到
+  await page.route('**/api.github.com/users/mockuser', async (route) => {
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ login: 'mockuser' }) })
+  })
+
+  await page.goto('/')
+  await page.getByPlaceholder('輸入 GitHub 使用者名稱...').fill('mockuser')
+  await page.getByRole('button', { name: '搜尋' }).click()
+
+  // 在 API 回應前，按鈕應顯示「搜尋中」
+  await expect(page.getByRole('button', { name: '搜尋中' })).toBeVisible()
+
+  // 完成後「搜尋中」消失
+  await expect(page.getByRole('button', { name: '搜尋中' })).not.toBeVisible({ timeout: 10000 })
+})
