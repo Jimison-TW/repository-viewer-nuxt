@@ -11,6 +11,7 @@ export const useListUserReposAPI = (username: string) => {
     if (loading.value || !hasMore.value) return
 
     loading.value = true
+    fetchError.value = ''
     try {
       const response = await $fetch.raw<ListUserReposResponse>(`https://api.github.com/users/${username}/repos`, {
         query: {
