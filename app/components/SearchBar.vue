@@ -12,7 +12,7 @@
           <input
             v-model="inputValue"
             type="text"
-            placeholder="輸入 GitHub 使用者名稱..."
+            :placeholder="placeholder"
             class="w-full bg-slate-800 border border-slate-600 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
             @keydown.enter="onSearch"
           >
