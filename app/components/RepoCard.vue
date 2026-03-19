@@ -51,9 +51,7 @@
 <script setup lang="ts">
 import type { ListUserReposItem } from '~/types/github'
 
-withDefaults(defineProps<{
-  repo: ListUserReposItem
-}>(), {})
+const { repo } = defineProps<{ repo: ListUserReposItem }>()
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('zh-TW', {
