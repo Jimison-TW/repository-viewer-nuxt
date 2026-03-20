@@ -10,7 +10,7 @@
     </div>
 
     <!-- 無限滾動哨兵元素 -->
-    <div ref="sentinelRef" class="flex justify-center items-center py-10">
+    <div ref="sentinelRef" data-testid="scroll-sentinel" class="flex justify-center items-center py-10">
       <template v-if="loading">
         <div class="flex items-center gap-3 text-slate-400 text-sm">
           <svg
