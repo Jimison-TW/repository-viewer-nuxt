@@ -24,17 +24,17 @@ function makeRepos(count: number, startId = 0) {
  * - nobody-xyz-404：回傳 404
  */
 export async function setupMockAPI(page: Page) {
-  // --- 使用者驗證 ---
-  await page.route('**/api.github.com/users/mockuser', (route) => {
+  // --- 使用者驗證（使用 regex 確保匹配）---
+  await page.route(/api\.github\.com\/users\/mockuser$/, (route) => {
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ login: 'mockuser' }) })
   })
 
-  await page.route('**/api.github.com/users/nobody-xyz-404', (route) => {
+  await page.route(/api\.github\.com\/users\/nobody-xyz-404$/, (route) => {
     route.fulfill({ status: 404, contentType: 'application/json', body: JSON.stringify({ message: 'Not Found' }) })
   })
 
-  // --- Repos 分頁（共 30 筆，3 頁） ---
-  await page.route('**/api.github.com/users/mockuser/repos?**', (route, request) => {
+  // --- Repos 分頁（共 30 筆，3 頁，使用 regex）---
+  await page.route(/api\.github\.com\/users\/mockuser\/repos/, (route, request) => {
     const url = new URL(request.url())
     const pageNum = Number(url.searchParams.get('page') ?? '1')
 
@@ -44,19 +44,25 @@ export async function setupMockAPI(page: Page) {
     if (pageNum === 1) {
       repos = makeRepos(10, 0)
       linkHeader = '<https://api.github.com/users/mockuser/repos?page=2>; rel="next"'
-    } else if (pageNum === 2) {
+    }
+    else if (pageNum === 2) {
       repos = makeRepos(10, 10)
       linkHeader = '<https://api.github.com/users/mockuser/repos?page=3>; rel="next"'
-    } else if (pageNum === 3) {
+    }
+    else if (pageNum === 3) {
       repos = makeRepos(10, 20)
-      // 最後一頁，不帶 rel="next"
       linkHeader = ''
+    }
+
+    const baseHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Expose-Headers': 'Link',
     }
 
     route.fulfill({
       status: 200,
-      contentType: 'application/json',
-      headers: linkHeader ? { Link: linkHeader } : {},
+      headers: linkHeader ? { ...baseHeaders, Link: linkHeader } : baseHeaders,
       body: JSON.stringify(repos),
     })
   })
