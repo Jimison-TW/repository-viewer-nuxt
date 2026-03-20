@@ -1,0 +1,27 @@
+{
+  "eslint.useFlatConfig": true,
+  
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  "editor.formatOnSave": false, // 確保關閉，避免被其他 Formatter 搶走權限
+
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "vue",
+    "html"
+  ],
+
+  // 指定工作目錄，這對 Nuxt 特別重要，因為配置檔在根目錄
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  "[vue]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": false // 再次確認 Vue 檔案不跑一般格式化
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  }
+}
