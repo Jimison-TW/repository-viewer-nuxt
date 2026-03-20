@@ -56,23 +56,33 @@
 </template>
 
 <script setup lang="ts">
+// 定義元件對外發出的事件：確認使用者存在時傳出名稱；清空搜尋時通知父元件重置
 const emit = defineEmits<{
   (e: 'search', username: string): void
   (e: 'clear'): void
 }>()
 
 withDefaults(defineProps<{
+  /** 輸入框的佔位提示文字 */
   placeholder?: string
 }>(), {
   placeholder: '輸入 GitHub 使用者名稱...',
 })
 
+// 輸入框的雙向綁定值
 const inputValue = ref('')
+// 是否正在呼叫 GitHub API 驗證使用者
 const loading = ref(false)
+// 驗證失敗的錯誤訊息
 const error = ref('')
+// 已成功驗證的使用者名稱，用於顯示「正在顯示 xxx 的儲存庫」
 const confirmedUser = ref('')
 
-// 輸入變動時重置結果
+/*
+ * 監聽輸入框變動：當使用者清空輸入時，重置所有搜尋結果狀態，
+ * 並向父元件發出 clear 事件，讓 app.vue 隱藏 RepoList。
+ * 這樣不需等使用者重新按下搜尋按鈕，介面就能即時回到初始狀態。
+ */
 watch(inputValue, (val) => {
   if (!val.trim()) {
     error.value = ''
@@ -81,8 +91,13 @@ watch(inputValue, (val) => {
   }
 })
 
+/**
+ * @description 呼叫 GitHub Users API 驗證使用者是否存在，驗證成功後通知父元件載入儲存庫。
+ * 在發出請求前先 guard loading 狀態，防止使用者在請求期間重複點擊觸發並發請求。
+ */
 async function onSearch() {
   const username = inputValue.value.trim()
+  // 空值或請求進行中時忽略，防止送出無效請求
   if (!username || loading.value) return
 
   loading.value = true
@@ -90,6 +105,8 @@ async function onSearch() {
   confirmedUser.value = ''
 
   try {
+    // 透過 GET /users/{username} 確認使用者是否存在，而非直接打 repos API，
+    // 可以拿到更明確的 404 錯誤並做出對應的提示文字
     await $fetch(`https://api.github.com/users/${username}`)
     confirmedUser.value = username
     emit('search', username)
@@ -103,6 +120,7 @@ async function onSearch() {
     } else {
       error.value = '搜尋失敗，請稍後再試。'
     }
+    // 驗證失敗時通知父元件清除舊的搜尋結果
     emit('clear')
   }
   finally {
