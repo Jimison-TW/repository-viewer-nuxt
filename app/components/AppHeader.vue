@@ -9,7 +9,9 @@
 </template>
 
 <script setup lang="ts">
+// 頁面頂部全幅標題列，統一管理應用程式名稱的顯示
 withDefaults(defineProps<{
+  /** 顯示於標題列的文字，不傳入時預設為 'Repository Viewer' */
   title?: string
 }>(), {
   title: 'Repository Viewer',
